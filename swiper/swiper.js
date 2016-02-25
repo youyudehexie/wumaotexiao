@@ -1,6 +1,4 @@
 import styles from './style.css';
-import { toStyle } from './tools.js';
-
 
 export default class Swiper {
   constructor(el, opts={}) {
@@ -38,6 +36,36 @@ export default class Swiper {
         }
     });
 
+  }
+
+  toStyle(obj) {
+    let result = '';
+    let key;
+    let value;
+    var keys = Object.keys(obj);
+    for (let i = 0; i < keys.length; i++) {
+        key = keys[i]
+        value = obj[key];
+
+        key = key.replace(/[A-Z]/, function (word) {
+          return '-' + word.toLowerCase();
+        });
+
+
+        if (typeof value === 'number') {
+            value = value + 'px';
+        }
+
+        result += `${key}: ${value};`
+        if (['transform'].indexOf(key) != -1) {
+          result += `-webkit-${key}: ${value};`
+          result += `-moz-${key}: ${value};`
+          result += `-ms-${key}: ${value};`
+        }
+
+    }
+
+    return result;
   }
 
   handleTouchStart(evt) {
@@ -101,7 +129,7 @@ export default class Swiper {
     let result = '';
 
     for (let i = 0; i < items.length; i++ ) {
-      result += `<div class="${styles.slider}" style="${toStyle({width: width})}" >${items[i]}</div>`;
+      result += `<div class="${styles.slider}" style="${this.toStyle({width: width})}" >${items[i]}</div>`;
     }
 
     return result;
@@ -111,7 +139,7 @@ export default class Swiper {
     const { width, items } = this.opts;
 
     return `
-      <div class="${styles.wrapper}" style="${toStyle(this.wrapStyle)}" 
+      <div class="${styles.wrapper}" style="${this.toStyle(this.wrapStyle)}" 
       >
         ${this.genItemsTpl()}
       </div>
