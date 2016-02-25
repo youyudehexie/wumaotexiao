@@ -1,0 +1,11 @@
+.item {
+    text-align: center;
+    padding: 16px;
+    border: 1px solid black;
+}
+
+.items__footer {
+    text-align: center;
+    padding: 32px;
+    color: red;
+}
