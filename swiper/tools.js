@@ -13,11 +13,18 @@ export function toStyle(obj) {
           return '-' + word.toLowerCase();
         });
 
+
         if (typeof value === 'number') {
             value = value + 'px';
         }
 
         result += `${key}: ${value};`
+        if (['transform'].indexOf(key) != -1) {
+          result += `-webkit-${key}: ${value};`
+          result += `-moz-${key}: ${value};`
+          result += `-ms-${key}: ${value};`
+        }
+
     }
 
     return result;

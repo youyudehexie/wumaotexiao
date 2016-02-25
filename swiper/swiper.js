@@ -15,42 +15,55 @@ export default class Swiper {
     this.curr = 0;
 
     this.wrapStyle = {
-        width: this.width,
-        transform: this.translate(0,0,0),
+        width: this.width*(this.total + 1),
         transitionDuration: '0ms',
     };
 
+    this.wrapStyle.transform = this.wrapStyle.webkitTransform = 'translate3d(0, 0, 0)';
+
+    this.oldWrapStyle = {};
     this.render();
+
     this.wrapper = document.querySelector(`.${styles.wrapper}`)
     this.bindEvents();
+    this.delta = 0;
   }
 
-  bindEvents () {
-    let delta = 0;
+  apply() {
+    let es = this.wrapper.style;
+    Object.keys(this.wrapStyle).forEach((key) => {
+        if (this.oldWrapStyle[key] != this.wrapStyle[key]) {
+            es[key] = this.wrapStyle[key];
+            this.oldWrapStyle[key] = this.wrapStyle[key];
+        }
+    });
 
-    this.wrapper.addEventListener('touchstart', (evt) => {
-      evt.preventDefault();
+  }
+
+  handleTouchStart(evt) {
+      this.wrapStyle.transitionDuration = '0ms';
+      this.apply();
+
       this.startPos = {
         x: evt.touches[0].clientX,
         y: evt.touches[0].clientY
       }
-    });
+  }
 
-    this.wrapper.addEventListener('touchmove', (evt) => {
+  handleTouchMove(evt) {
       evt.preventDefault();
       this.currPos = {
         x: evt.touches[0].clientX,
         y: evt.touches[0].clientY
       };
 
-      delta = this.currPos[this.direction] - this.startPos[this.direction];
-      this.moveWrap(delta + -1*this.width*this.curr);
-    });
+      this.delta = this.currPos[this.direction] - this.startPos[this.direction];
+      this.moveWrap(this.delta + -1*this.width*this.curr);
+  }
 
-    this.wrapper.addEventListener('touchend', (evt) => {
-      evt.preventDefault();
-      if (Math.abs(delta) / this.width > 1/2) {
-        if (delta < 0) {
+  handleTouchEnd(evt) {
+      if (Math.abs(this.delta) / this.width > 1/4) {
+        if (this.delta < 0) {
           this.curr += 1;
           this.curr = this.curr < this.total ? this.curr : this.total;
         } else {
@@ -59,30 +72,28 @@ export default class Swiper {
         }
       }
 
-      this.adjustPosition()
-    });
+      this.adjustPosition();
+  }
 
+  bindEvents () {
+    this.wrapper.addEventListener('touchstart', this.handleTouchStart.bind(this));
+    this.wrapper.addEventListener('touchmove', this.handleTouchMove.bind(this));
+    this.wrapper.addEventListener('touchend', this.handleTouchEnd.bind(this));
   }
 
   adjustPosition () {
     this.wrapStyle.transitionDuration = '300ms';
-    this.wrapper.style = toStyle(this.wrapStyle);
     this.moveWrap(-1*this.width*this.curr);
-    this.wrapStyle.transitionDuration = '0ms';
   }
 
   moveWrap (delta) {
     if (this.direction == 'x') {
-      this.wrapStyle.transform = this.translate(delta, 0, 0);
+      this.wrapStyle.transform = this.wrapStyle.webkitTransform =  `translate3d(${delta}px, 0, 0)`;
     } else {
-      this.wrapStyle.transform = this.translate(0, delta, 0);
+      this.wrapStyle.transform = this.wrapStyle.webkitTransform =  `translate3d(0, ${delta}px, 0)`;
     }
 
-    this.wrapper.style = toStyle(this.wrapStyle);
-  }
-
-  translate(x, y, z) {
-    return `translate3d(${x}px, ${y}px, ${z}px)`
+    this.apply();
   }
 
   genItemsTpl() {
@@ -90,12 +101,11 @@ export default class Swiper {
     let result = '';
 
     for (let i = 0; i < items.length; i++ ) {
-      result += `<div class="${styles.slider}" style="${toStyle({width: width, lineHeight: height / 2})}" >${items[i]}</div>`;
+      result += `<div class="${styles.slider}" style="${toStyle({width: width})}" >${items[i]}</div>`;
     }
 
     return result;
   }
-
 
   renderDom() {
     const { width, items } = this.opts;
