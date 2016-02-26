@@ -1,0 +1,22 @@
+.item {
+    text-align: center;
+    margin-top: 16px;
+}
+
+:local(.wraper) {
+    overflow: hidden;
+}
+
+:local(.loader) {
+
+}
+
+:local(.content) {
+
+}
+
+.header {
+    color: red;
+    padding: 16px;
+    text-align: center;
+}

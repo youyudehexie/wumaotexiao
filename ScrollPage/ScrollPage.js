@@ -16,7 +16,6 @@ export default class ScrollPage {
     let totalScrolled = window.innerHeight + document.body.scrollTop;
 
     if (totalScrolled + 100 > windowHeight && this.isLoading === false) {
-      console.log('loading..')
       this.isLoading = true;
       onNext((items) => {
         this.items = this.items.concat(items);
@@ -29,11 +28,6 @@ export default class ScrollPage {
         this.isLoading = false;
       });
     }
-
-    //if (totalScrolled - this)
-
-    //this.el.scrollHeight - 100
-    //document.querySelector('#items').scrollHeight
   }
 
   bindEvents() {
